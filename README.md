@@ -1,229 +1,127 @@
-# RPG Campaign Assistant - Technical Specification
+# RPG Campaign Assistant
 
-## Overview
-A web-based role-playing game assistant designed to help Dungeon Masters (DMs) prepare campaigns, generate NPCs on-the-fly during sessions, and create session recaps from audio recordings. The tool focuses on collaborative campaign planning with AI assistance.
+A web-based role-playing game assistant designed to help Dungeon Masters (DMs) prepare campaigns, generate NPCs on-the-fly during sessions, and create session recaps from audio recordings.
 
-## Target Systems
-- **Primary**: Call of Cthulhu
-- **Secondary**: D&D 5e, Pathfinder, and other tabletop RPG systems
-- **Design**: System-agnostic architecture to support multiple rule sets
+## Features
 
-## Core Features
+- **Collaborative Campaign Planning**: Dynamic document editor with AI assistance
+- **On-the-Fly NPC Generation**: Interactive chat interface for creating NPCs during sessions
+- **Session Recap Generation**: Audio-to-text transcription with AI-generated summaries
+- **Discord Integration**: Push session recaps to Discord servers
+- **Multi-System Support**: Call of Cthulhu, D&D 5e, Pathfinder, and more
 
-### 1. Collaborative Campaign Planning
-- **Interface**: Dynamic, freestyle document editor (similar to collaborative writing apps)
-- **Structure**: Flexible organization allowing DMs to use their preferred structure
-- **AI Integration**: AI agents assist with:
-  - Plot twist suggestions
-  - Encounter creation and stat blocks
-  - Atmospheric descriptions
-  - Session pacing recommendations
-  - Location development
-  - Story arc refinement
-- **Workflow**: Back-and-forth refinement process between DM and AI
-- **Final Authority**: DM has final approval on all content
+## Tech Stack
 
-### 2. On-the-Fly NPC Generation
-- **Trigger**: Dedicated button/interface within the collaborative document
-- **Interface**: Interactive chat interface for parameter specification
-- **Parameters**: All potential NPC attributes via conversational input:
-  - Role in story (shopkeeper, witness, antagonist, etc.)
-  - Personality traits
-  - Appearance
-  - Relevant skills/stats
-  - Relationship to existing campaign elements
-- **Agent Focus**: Specialized NPC generation agent (distinct from general campaign assistant)
-- **Integration**: Generated NPCs can be added to session notes after DM approval
-- **Usage Context**: Available during both session preparation and live gameplay
+- **Backend**: Python FastAPI with PostgreSQL database
+- **Frontend**: SvelteJS with TailwindCSS
+- **Database**: PostgreSQL with SQLAlchemy ORM
+- **Authentication**: JWT with OAuth support (Google, Discord)
 
-### 3. Session Recap Generation
-- **Input**: Audio recordings uploaded by DM (MP3, WAV formats)
-- **Processing**: Speech-to-text transcription with AI-generated summary
-- **Content**: Recap includes:
-  - What happened during the session
-  - Player achievements
-  - Gains/rewards obtained
-- **Output**: Editable recap document
-- **Export**: Sessions downloadable as PDFs
+## Quick Start
 
-### 4. Discord Integration
-- **Authentication**: Support for Discord OAuth
-- **Functionality**: Push session recaps to Discord servers
-- **Customization**: DM can customize what content gets shared
-- **Multi-server**: Support for multiple Discord servers per campaign
+### Prerequisites
 
-## Technical Architecture
+- Python 3.8+
+- Node.js 18+
+- PostgreSQL
+- Docker (optional)
 
-### Backend
-- **Framework**: Python with FastAPI
-- **Database**: Developer's choice (recommend PostgreSQL or MongoDB)
-- **Cloud**: No specific preference - developer's discretion
-- **AI Integration**: Support for multiple AI models/APIs
+### Backend Setup
 
-### Frontend
-- **Type**: Web application (browser-based)
-- **Architecture**: Single-user document editing (no real-time collaboration initially)
-- **Export**: PDF generation capability
+1. Start the database:
+```bash
+docker-compose up -d postgres
+```
 
-### Authentication
-- **Methods**: 
-  - Email/password
-  - Google OAuth
-  - Discord OAuth
-- **Account Management**: Standard user registration and management
+2. Install Python dependencies:
+```bash
+cd backend
+pip install -r requirements.txt
+```
 
-### File Management
-- **Storage**: Cloud-based campaign storage
-- **Uploads**: Support for PDF uploads (rulebooks, custom content)
-- **Audio**: MP3 and WAV file processing for speech-to-text
-- **Export**: PDF download functionality for sessions
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
 
-## AI Agent Architecture
+4. Run database migrations:
+```bash
+alembic upgrade head
+```
 
-### Campaign Assistant Agent
-- **Scope**: Broad RPG knowledge and campaign planning
-- **Capabilities**:
-  - Plot development
-  - Encounter design
-  - Location creation
-  - Session planning
-  - General RPG assistance
+5. Start the backend server:
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
 
-### NPC Generation Agent
-- **Scope**: Specialized NPC creation
-- **Interface**: Conversational chat interface
-- **Parameters**: Dynamic parameter acceptance through natural language
-- **Integration**: Seamless addition to campaign documents
+### Frontend Setup
 
-### Knowledge Base
-- **Official Content**: Access to official rulebooks for supported systems
-- **Custom Content**: User-uploaded PDFs and documents
-- **System**: Flexible knowledge base supporting multiple RPG systems
+1. Install dependencies:
+```bash
+cd frontend
+npm install
+```
 
-## User Experience Flow
+2. Start the development server:
+```bash
+npm run dev
+```
 
-### Campaign Creation
-1. DM creates new campaign
-2. Selects RPG system
-3. Uploads relevant rulebooks/PDFs
-4. Begins collaborative planning with AI assistant
+The application will be available at:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
 
-### Session Preparation
-1. DM outlines session goals/plot points
-2. AI suggests encounters, locations, NPCs
-3. Iterative refinement process
-4. Session plan finalization
+## Project Structure
 
-### Live Session Support
-1. Access to campaign documents during play
-2. On-demand NPC generation via dedicated interface
-3. Real-time document updates
+```
+├── backend/
+│   ├── app/
+│   │   ├── models/          # Database models
+│   │   ├── routers/         # API endpoints
+│   │   ├── services/        # Business logic
+│   │   └── utils/           # Utility functions
+│   ├── migrations/          # Database migrations
+│   └── tests/              # Backend tests
+├── frontend/
+│   ├── src/
+│   │   ├── lib/            # Shared components and stores
+│   │   ├── routes/         # SvelteKit routes
+│   │   └── app.html        # HTML template
+│   └── static/             # Static assets
+└── docker-compose.yml      # Development services
+```
 
-### Post-Session
-1. Upload session recording
-2. AI generates transcript and recap
-3. DM reviews and edits recap
-4. Export to PDF and/or push to Discord
+## Development
 
-## Data Models
+### Database Migrations
 
-### Campaign
-- Campaign ID
-- Name
-- RPG System
-- Creation Date
-- DM User ID
-- Associated Sessions
-- Uploaded Documents
+Create a new migration:
+```bash
+cd backend
+alembic revision --autogenerate -m "Description of changes"
+```
 
-### Session
-- Session ID
-- Campaign ID
-- Session Number
-- Date
-- Preparation Notes
-- Generated NPCs
-- Audio Recording
-- Transcript
-- Recap
-- Status (Planned/In Progress/Completed)
+Apply migrations:
+```bash
+alembic upgrade head
+```
 
-### NPC
-- NPC ID
-- Session ID
-- Name
-- Role
-- Attributes
-- Generated Parameters
-- Integration Status
+### API Documentation
 
-### User
-- User ID
-- Email
-- Authentication Method
-- Subscription Status
-- Discord Integration Settings
+The FastAPI backend automatically generates OpenAPI documentation available at:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
-## Integration Requirements
+## Contributing
 
-### Discord API
-- Bot creation and management
-- Server integration
-- Message posting with customizable content
-- Multi-server support per user
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-### Speech-to-Text
-- Support for MP3 and WAV formats
-- Transcript generation
-- Integration with AI summarization
+## License
 
-### PDF Generation
-- Campaign document export
-- Session recap export
-- Custom formatting options
-
-## Subscription Model
-- **Type**: Subscription-based pricing
-- **Tiers**: To be defined based on feature complexity
-- **Features**: Differentiated by usage limits, AI capabilities, storage, etc.
-
-## Future Considerations
-- Real-time collaboration features
-- Mobile application
-- Additional RPG system support
-- Advanced Discord bot features
-- Voice command integration
-
-## Success Metrics
-- User engagement with AI suggestions
-- NPC generation usage frequency
-- Session recap accuracy and usefulness
-- Discord integration adoption
-- Campaign completion rates
-
-## Development Phases
-
-### Phase 1: Core Platform
-- User authentication
-- Basic campaign document editor
-- AI agent integration framework
-
-### Phase 2: AI Features
-- Campaign planning assistant
-- NPC generation system
-- Knowledge base integration
-
-### Phase 3: Session Management
-- Audio upload and transcription
-- Recap generation
-- PDF export functionality
-
-### Phase 4: Integrations
-- Discord integration
-- Enhanced export options
-- Subscription management
-
-### Phase 5: Polish & Scale
-- Performance optimization
-- Advanced features
-- Multi-system expansion
+This project is licensed under the MIT License.
